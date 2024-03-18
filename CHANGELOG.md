@@ -36,6 +36,12 @@ Remember to align the itemized text with the first line of an item within a list
     or `enable_xla=False` is now deprecated and this support will be removed in
     a future version.
     Native serialization has been the default since JAX 0.4.16 (September 2023).
+  * Hermetic CUDA support is added.
+    Hermetic CUDA uses a specific downloadable version of CUDA instead of the
+    user’s locally installed CUDA. Bazel will download CUDA, CUDNN and NCCL
+    distributions, and then use CUDA libraries and tools as dependencies in
+    various Bazel targets. This enables more reproducible builds for JAX and its
+    supported CUDA versions.
 
 ## jaxlib 0.4.31
 
