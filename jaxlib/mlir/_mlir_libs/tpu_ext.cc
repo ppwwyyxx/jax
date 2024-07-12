@@ -317,6 +317,17 @@ MlirContext getDefaultContext() {
 PYBIND11_MODULE(_tpu_ext, m) {
   mlirRegisterTPUPasses();  // Register all passes on load.
 
+  py::class_<MlirApplyVectorLayoutCtx>(m, "ApplyVectorLayoutCtx",
+                                       py::module_local())
+      .def(py::init<>())
+      .def_readwrite("func", &MlirApplyVectorLayoutCtx::func)
+      .def_readwrite("hardware_generation",
+                     &MlirApplyVectorLayoutCtx::hardware_generation)
+      .def_readwrite("target_shape", &MlirApplyVectorLayoutCtx::target_shape)
+      .def_readwrite("mxu_shape", &MlirApplyVectorLayoutCtx::mxu_shape)
+      .def_readwrite("max_sublanes_in_scratch",
+                     &MlirApplyVectorLayoutCtx::max_sublanes_in_scratch);
+
   py::class_<MlirTpuVregDataBounds>(m, "VRegDataBounds", py::module_local())
       .def("mask_varies_along",
            [](MlirTpuVregDataBounds self, MlirTpuDirection direction) {
@@ -648,10 +659,11 @@ PYBIND11_MODULE(_tpu_ext, m) {
           }
         });
   m.def("relayout",
-        [](MlirValue v, MlirTpuVectorLayout src, MlirTpuVectorLayout dst) {
+        [](MlirValue v, MlirTpuVectorLayout src, MlirTpuVectorLayout dst,
+           MlirApplyVectorLayoutCtx apply_layout_ctx) {
           DiagnosticCapture diag_capture(getDefaultContext());
           MlirValue new_v = mlirTpuRelayout(getDefaultInsertionPoint(), v, src,
-                                            dst, TARGET_SHAPE);
+                                            dst, apply_layout_ctx);
           if (new_v.ptr == nullptr) {
             diag_capture.throwIfError();
             throw py::value_error("Failed to relayout");

@@ -43,7 +43,6 @@ limitations under the License.
 #include "absl/log/log.h"
 #include "jaxlib/mosaic/dialect/tpu/layout.h"
 #include "jaxlib/mosaic/dialect/tpu/tpu_dialect.h"
-#include "jaxlib/mosaic/dialect/tpu/transforms/apply_vector_layout.h"
 #include "xla/array.h"
 
 // TODO(tlongeri): null pointer checks?
@@ -379,13 +378,13 @@ MlirLogicalResult mlirTpuApplyLayoutOp(int hardware_generation,
 
 MlirValue mlirTpuRelayout(MlirTpuInsertionPoint insertion_point, MlirValue val,
                           MlirTpuVectorLayout src, MlirTpuVectorLayout dst,
-                          MlirTpuI64TargetTuple target_shape) {
+                          MlirApplyVectorLayoutCtx apply_layout_ctx) {
   mlir::OpBuilder builder = mlirTpuInsertionPointToOpBuilder(insertion_point);
   // This cast will fail and assert if the caller passed a non-vector
   auto vector_val = mlir::cast<mlir::TypedValue<mlir::VectorType>>(unwrap(val));
   mlir::FailureOr<mlir::TypedValue<mlir::VectorType>> failure_or_new_val =
-      mlir::tpu::relayout(builder, vector_val, *unwrap(src), *unwrap(dst),
-                          unwrap(target_shape));
+      mlir::tpu::relayout(apply_layout_ctx, builder, vector_val, *unwrap(src),
+                          *unwrap(dst));
   if (failed(failure_or_new_val)) {
     return {nullptr};
   }

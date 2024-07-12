@@ -27,6 +27,7 @@ limitations under the License.
 
 #include "mlir-c/IR.h"
 #include "mlir-c/Support.h"
+#include "jaxlib/mosaic/dialect/tpu/transforms/apply_vector_layout.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,6 +104,8 @@ typedef struct MlirTpuInsertionPoint {
   MlirBlock block;  // Only used when ref_operation is unspecified (null)
   MlirOperation ref_operation;
 } MlirTpuInsertionPoint;
+
+typedef mlir::tpu::RewriteContext MlirApplyVectorLayoutCtx;
 
 // Caller owns the returned object and is responsible for calling
 // mlirTpuVectorLayoutDestroy
@@ -218,7 +221,7 @@ mlirTpuApplyLayoutOp(int hardware_generation, MlirOperation op,
 MLIR_CAPI_EXPORTED MlirValue
 mlirTpuRelayout(MlirTpuInsertionPoint insertion_point, MlirValue val,
                 MlirTpuVectorLayout src, MlirTpuVectorLayout dst,
-                MlirTpuI64TargetTuple target_shape);
+                MlirApplyVectorLayoutCtx apply_layout_ctx);
 #ifdef __cplusplus
 }
 #endif

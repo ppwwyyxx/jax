@@ -4812,9 +4812,12 @@ Value copy_one_sublane(OpBuilder &builder, Value src_vreg, int src_sl_idx,
 }
 
 // TODO(apaszke): Test this function properly
-FailureOr<TypedValue<VectorType>> relayout(
-    OpBuilder &builder, TypedValue<VectorType> v, VectorLayout src,
-    const VectorLayout &dst, const std::array<int64_t, 2> target_shape) {
+FailureOr<TypedValue<VectorType>> relayout(RewriteContext &ctx,
+                                           OpBuilder &builder,
+                                           TypedValue<VectorType> v,
+                                           VectorLayout src,
+                                           const VectorLayout &dst) {
+  const auto target_shape = ctx.target_shape;
   const int8_t bitwidth = src.bitwidth();
   if (bitwidth != dst.bitwidth()) {
     return emitError(v.getLoc(), "Can't change bitwidth during a relayout");
@@ -5266,9 +5269,9 @@ LogicalResult applyLayoutOp(RewriteContext &ctx, Operation &op) {
         continue;
       }
       OpBuilder builder(&op);
-      FAILUREOR_ASSIGN_OR_RETURN(Value new_v,
-                                 relayout(builder, vector_operand, /*src=*/*lo,
-                                          /*dst=*/*li, ctx.target_shape));
+      FAILUREOR_ASSIGN_OR_RETURN(
+          Value new_v, relayout(ctx, builder, vector_operand, /*src=*/*lo,
+                                /*dst=*/*li));
       op.setOperand(idx, new_v);
     }
   }
