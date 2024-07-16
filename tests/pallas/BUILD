@@ -317,6 +317,25 @@ jax_test(
 )
 
 jax_test(
+    name = "tpu_pallas_distributed_test",
+    srcs = ["tpu_pallas_distributed_test.py"],
+    disable_backends = [
+        "cpu",
+        "gpu",
+    ],
+    enable_configs = [
+        "tpu_df_2x2",
+        "tpu_pf_2x2",
+        "tpu_vf_2x2",
+    ],
+    deps = [
+        "//jax:extend",
+        "//jax:pallas_tpu",
+        "//jax:pallas_tpu_ops",
+    ],
+)
+
+jax_test(
     name = "tpu_pallas_pipeline_test",
     srcs = ["tpu_pallas_pipeline_test.py"],
     disable_backends = [
