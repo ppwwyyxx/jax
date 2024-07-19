@@ -921,6 +921,13 @@ def _run_exported_as_tf(args_flat_tf: Sequence[TfVal],
 
   call_module_attrs["module"] = exported.mlir_module_serialized
 
+  if logging.vlog_is_on(3):
+    logging.vlog(
+        3,
+        "Size of exported.mlir_module_serialized: %d byte",
+        len(exported.mlir_module_serialized),
+    )
+
   # Apply the shardings on arguments and results for pjit. This is redundant
   # because the mlir_module_text will already contain the shardings, but it
   # makes it easier for tools like the TPU inference converter to see the
